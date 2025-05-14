@@ -7,7 +7,7 @@ from datetime import timedelta
 import altair as alt
 
 st.set_page_config(page_title="Sales Forecast - BigMart", layout="wide")
-st.title("📊 Sales Forecast - BigMart Store")
+st.title("📊 Sales Forecast - BigMart Store - Project by Thuong and Doan")
 
 uploaded_file = st.file_uploader("📁 Upload sales CSV file (BigMart format)", type=["csv"])
 
