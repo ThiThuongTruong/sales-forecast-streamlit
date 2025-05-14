@@ -53,8 +53,8 @@ if uploaded_file:
     # Chart: Total predicted sales by date
     chart_total = future_df.groupby("Date")["Predicted_Sales"].sum().reset_index()
     total_chart = alt.Chart(chart_total).mark_line(point=True).encode(
-        x="Date:T",
-        y="Predicted_Sales:Q"
+        x=alt.X("Date:T"),
+        y=alt.Y("Predicted_Sales:Q", scale=alt.Scale(zero=False))
     ).properties(title="📈 Total Predicted Sales Over Time")
     st.altair_chart(total_chart, use_container_width=True)
 
@@ -64,8 +64,8 @@ if uploaded_file:
     selected_sku = st.selectbox("Select SKU", sku_options)
     sku_data = future_df[future_df["SKU"] == selected_sku].groupby("Date")["Predicted_Sales"].sum().reset_index()
     sku_chart = alt.Chart(sku_data).mark_line(point=True).encode(
-        x="Date:T",
-        y="Predicted_Sales:Q"
+        x=alt.X("Date:T"),
+        y=alt.Y("Predicted_Sales:Q", scale=alt.Scale(zero=False))
     ).properties(title=f"📦 Predicted Sales for SKU: {selected_sku}")
     st.altair_chart(sku_chart, use_container_width=True)
 
@@ -75,8 +75,8 @@ if uploaded_file:
     selected_store = st.selectbox("Select Store", store_options)
     store_data = future_df[future_df["Store_ID"] == selected_store].groupby("Date")["Predicted_Sales"].sum().reset_index()
     store_chart = alt.Chart(store_data).mark_line(point=True).encode(
-        x="Date:T",
-        y="Predicted_Sales:Q"
+        x=alt.X("Date:T"),
+        y=alt.Y("Predicted_Sales:Q", scale=alt.Scale(zero=False))
     ).properties(title=f"🏬 Predicted Sales for Store: {selected_store}")
     st.altair_chart(store_chart, use_container_width=True)
 
