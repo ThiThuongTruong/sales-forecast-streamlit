@@ -6,7 +6,7 @@ from itertools import product
 from datetime import timedelta
 import altair as alt
 
-st.set_page_config(page_title="Sales Forecast - BigMart", layout="wide")
+st.set_page_config(page_title="Sales Forecast - BigMart Project", layout="wide")
 st.title("📊 Sales Forecast - BigMart Store - Project by Thuong and Doan")
 
 uploaded_file = st.file_uploader("📁 Upload sales CSV file (BigMart format)", type=["csv"])
@@ -79,6 +79,31 @@ if uploaded_file:
         y=alt.Y("Predicted_Sales:Q", scale=alt.Scale(zero=False))
     ).properties(title=f"🏬 Predicted Sales for Store: {selected_store}")
     st.altair_chart(store_chart, use_container_width=True)
+
+    # Chart: Store + SKU
+    st.subheader("🔍 Forecast by Store & Product")
+    col1, col2 = st.columns(2)
+    with col1:
+        selected_combo_store = st.selectbox("🏬 Select Store", sorted(future_df["Store_ID"].unique()), key="combo_store")
+    with col2:
+        selected_combo_sku = st.selectbox("📦 Select SKU", sorted(future_df["SKU"].unique()), key="combo_sku")
+
+    filtered_data = future_df[
+        (future_df["Store_ID"] == selected_combo_store) &
+        (future_df["SKU"] == selected_combo_sku)
+    ]
+
+    if filtered_data.empty:
+        st.warning("⚠️ No data found for this Store-SKU combination.")
+    else:
+        combo_data = filtered_data.groupby("Date")["Predicted_Sales"].sum().reset_index()
+        combo_chart = alt.Chart(combo_data).mark_line(point=True).encode(
+            x=alt.X("Date:T"),
+            y=alt.Y("Predicted_Sales:Q", scale=alt.Scale(zero=False))
+        ).properties(
+            title=f"📈 Forecast for Store {selected_combo_store} & SKU {selected_combo_sku}"
+        )
+        st.altair_chart(combo_chart, use_container_width=True)
 
 else:
     st.info("📂 Please upload a CSV file to begin.")
