@@ -106,19 +106,35 @@ if uploaded_file:
         st.altair_chart(combo_chart, use_container_width=True)
 
     # --- Inventory Check ---
-    st.markdown("---")
-    st.subheader("🧮 Inventory Check – Stock vs Forecast")
+st.markdown("---")
+st.subheader("🧮 Inventory Check – Stock vs Forecast")
 
-    sku_selected_inv = st.selectbox("🔍 Select a SKU to check stock level", sorted(future_df["SKU"].unique()), key="inventory_check")
-    current_stock = st.number_input(f"Enter current stock level for SKU {sku_selected_inv}", min_value=0, step=1)
+sku_selected_inv = st.selectbox("🔍 Select a SKU to check stock level", sorted(future_df["SKU"].unique()), key="inventory_check")
+current_stock = st.number_input(f"Enter current stock level for SKU {sku_selected_inv}", min_value=0, step=1)
 
-    forecast_sum = future_df[future_df["SKU"] == sku_selected_inv]["Predicted_Sales"].sum()
-    st.write(f"📊 Total forecasted sales for SKU {sku_selected_inv}: **{int(forecast_sum)}** units")
+# Calculate total forecasted demand for the selected SKU
+forecast_sku_df = future_df[future_df["SKU"] == sku_selected_inv]
+forecast_sum = forecast_sku_df["Predicted_Sales"].sum()
+st.write(f"📊 Total forecasted sales for SKU {sku_selected_inv}: **{int(forecast_sum)}** units")
 
-    if current_stock < forecast_sum:
-        st.error(f"⚠️ Warning: Current stock ({current_stock}) is **less** than forecasted demand ({int(forecast_sum)})")
+# Inventory Reorder Policy (s, Q)
+st.markdown("### 📦 Inventory Reorder Policy (s, Q)")
+
+# Default suggestion: reorder point s = 50% of forecast, order quantity Q = 60% of forecast
+s_default = int(forecast_sum * 0.5)
+q_default = int(forecast_sum * 0.6)
+
+s = st.number_input("Set Reorder Point (s)", min_value=0, step=1, value=s_default)
+q = st.number_input("Set Reorder Quantity (Q)", min_value=1, step=1, value=q_default)
+
+# Inventory condition assessment
+if current_stock < forecast_sum:
+    st.error(f"⚠️ Warning: Current stock ({current_stock}) is **less** than forecasted demand ({int(forecast_sum)})")
+
+    if current_stock <= s:
+        st.warning(f"🔔 Alert: Stock level is below the reorder point (s = {s})")
+        st.info(f"💡 Suggested reorder quantity: **{q} units**")
     else:
-        st.success("✅ Stock level is sufficient for forecasted demand.")
-
+        st.info("🟡 Stock level is low but still above the reorder threshold.")
 else:
-    st.info("📂 Please upload a CSV file to begin.")
+    st.success("✅ Stock level is sufficient to meet the forecasted demand.")
